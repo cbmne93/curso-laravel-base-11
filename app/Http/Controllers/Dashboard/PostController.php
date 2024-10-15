@@ -2,51 +2,41 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use App\Http\Controllers\Controller;
 use App\Models\Post;
+use App\Models\Category;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Post\StoreRequest;
+use App\Http\Requests\Post\UpdateRequest;
 
 class PostController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+  
     public function index()
     {
-       /*  $post = Post::create(
-            [
-                'title' => 'Segundo Post',
-                'slug' => 'Segundo Post',
-                'description' => 'Segundo Post',
-                'content' => 'Segundo Post',
-                'image' => 'Segundo image',
-                'posted' => 'not',
-                'category_id' => '1'
-            ]
-        ); */
 
-        $posts = Post::all();
+        $posts = Post::paginate(5);
 
-        return $posts;
-
-
-
+        return view('dashboard.post.index', compact('posts'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+   
     public function create()
     {
-        //
+        $categories = Category::get();
+
+
+        return view('dashboard.post.create', compact('categories'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    
+    public function store(StoreRequest $request)
     {
-        //
+
+
+        Post::create($request->validated());
+
+        return to_route('post.index');
     }
 
     /**
@@ -57,20 +47,21 @@ class PostController extends Controller
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+    
     public function edit(Post $post)
     {
-        //
+        $categories = Category::all();
+
+        return view('dashboard.post.edit', compact('categories', 'post'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Post $post)
+  
+    public function update(UpdateRequest $request, Post $post)
     {
-        //
+        $post->update($request->validated());
+
+        return to_route('post.index');
+
     }
 
     /**
@@ -78,6 +69,8 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $post->delete();
+
+        return to_route('post.index');
     }
 }
